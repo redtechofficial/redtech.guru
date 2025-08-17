@@ -3,52 +3,42 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Notes Store</title>
-  <!-- Styles -->
+  <title>Study Material | Red Tech Official for Radiographer</title>
   <link rel="stylesheet" href="assets/css/style.css" />
-  <!-- Razorpay -->
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 </head>
 <body>
   <!-- HEADER -->
   <header>
-    <h1>📘 Notes Store</h1>
+    <h1><a href="index.html" class="logo-link">Red</a></h1>
     <div class="header-right">
-      <!-- Dark Mode Switch -->
       <label class="switch">
         <input type="checkbox" id="themeToggle">
         <span class="slider round"></span>
       </label>
       <small id="themeLabel">Dark Mode</small>
-      <!-- Cart -->
       <div class="cart" onclick="showCart()">
         🛒 <span id="cartCount">0</span>
       </div>
     </div>
   </header>
 
-  <!-- HERO SECTION -->
-  <section class="hero">
-    <h2>High-Quality Study Notes</h2>
-    <p>Instant download after secure payment via Razorpay</p>
-  </section>
-
   <!-- MAIN -->
   <main>
-    <h2>Available Notes</h2>
     <div class="product-grid" id="productGrid"></div>
   </main>
 
   <!-- FOOTER -->
   <footer>
-    <p>&copy; 2017-2025 Notes Store. All rights reserved.</p>
-    <p class="legal-links">
-      <a href="terms.html">Terms of Use</a> ·
-      <a href="privacy.html">Privacy Policy</a> ·
-      <a href="refund.html">Refunds</a> ·
-      <a href="shipping.html">Shipping</a> ·
-      <a href="contact.html">Contact</a>
+    <p class="footer-links">
+      <a href="terms.html">Terms of Use</a> · 
+      <a href="privacy.html">Privacy Policy</a> · 
+      <a href="refund.html">Refund & Cancellation</a> · 
+      <a href="shipping.html">Delivery & Shipping</a> · 
+      <a href="contact.html">Contact Us</a> · 
+      <a href="index.html"><b>Home</b></a>
     </p>
+    <p class="copyright">&copy; 2025 Notes Store</p>
   </footer>
 
   <!-- CART MODAL -->
@@ -61,10 +51,9 @@
     </div>
   </div>
 
-  <!-- TOAST (popup for add-to-cart) -->
+  <!-- TOAST -->
   <div id="toast"></div>
 
-  <!-- Scripts -->
   <script src="assets/js/script.js"></script>
 </body>
 </html>
