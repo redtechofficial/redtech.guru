@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Study Material | Red Tech Official for Radiographer</title>
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+</head>
+<body>
+  <!-- HEADER -->
+  <header>
+    <h1><a href="index.html" class="logo-link">Red Tech Official for Radiographer/a></h1>
+    <div class="header-right">
+      <label class="switch">
+        <input type="checkbox" id="themeToggle">
+        <span class="slider round"></span>
+      </label>
+      <small id="themeLabel">Dark Mode</small>
+      <div class="cart" onclick="showCart()">
+        🛒 <span id="cartCount">0</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN -->
+  <main>
+    <div class="product-grid" id="productGrid"></div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer>
+    <p class="footer-links">
+      <a href="terms.html">Terms of Use</a> · 
+      <a href="privacy.html">Privacy Policy</a> · 
+      <a href="refund.html">Refund & Cancellation</a> · 
+      <a href="shipping.html">Delivery & Shipping</a> · 
+      <a href="contact.html">Contact Us</a> · 
+      <a href="index.html"><b>Home</b></a>
+    </p>
+    <p class="copyright">&copy; 2025 Notes Store</p>
+  </footer>
+
+  <!-- CART MODAL -->
+  <div id="cartModal" class="cart-modal">
+    <div class="cart-content">
+      <span class="close" onclick="closeCart()">&times;</span>
+      <h2>Your Cart</h2>
+      <div id="cartItems"></div>
+      <button onclick="checkout()">Checkout</button>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div id="toast"></div>
+
+  <script src="assets/js/script.js"></script>
+</body>
+</html>
+
+
