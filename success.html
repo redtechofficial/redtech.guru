@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment Success</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main>
+    <h1>✅ Payment Successful!</h1>
+    <p>Thank you for purchasing. Your secure download link:</p>
+    <div id="downloadLink"></div>
+  </main>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const link = params.get("link");
+    if (link) {
+      document.getElementById("downloadLink").innerHTML =
+        `<a href="${link}">Download your notes</a>`;
+    }
+  </script>
+</body>
+</html>

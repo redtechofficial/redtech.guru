@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout - Notes Store</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>Checkout</h1>
+  </header>
+
+  <main>
+    <form id="checkoutForm">
+      <label>Email</label>
+      <input type="email" id="email" required placeholder="Enter your email">
+
+      <div id="cartItems"></div>
+      <p><b>Total:</b> ₹<span id="totalAmount">0</span></p>
+
+      <button type="submit">Pay with Razorpay</button>
+    </form>
+  </main>
+
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <script src="checkout.js"></script>
+</body>
+</html>

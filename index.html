@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Notes Store</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+</head>
+<body>
+  <!-- HEADER -->
+  <header>
+    <h1>📘 Notes Store</h1>
+    <div class="header-right">
+      <label class="switch">
+        <input type="checkbox" id="themeToggle">
+        <span class="slider round"></span>
+      </label>
+      <small id="themeLabel">Dark Mode</small>
+      <div class="cart" onclick="showCart()">
+        🛒 <span id="cartCount">0</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN -->
+  <main>
+    <h2>Available Notes</h2>
+    <div class="product-grid" id="productGrid"></div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>&copy; 2025 Notes Store</p>
+  </footer>
+
+  <!-- CART MODAL -->
+  <div id="cartModal" class="cart-modal">
+    <div class="cart-content">
+      <span class="close" onclick="closeCart()">&times;</span>
+      <h2>Your Cart</h2>
+      <div id="cartItems"></div>
+      <button onclick="checkout()">Checkout</button>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div id="toast"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
