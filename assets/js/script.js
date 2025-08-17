@@ -25,7 +25,7 @@ themeToggle.addEventListener('change', () => {
 let cart = [];
 let products = [];
 
-fetch('products.json')
+fetch('../data/products.json')
   .then(res => res.json())
   .then(data => {
     products = data;
@@ -142,3 +142,4 @@ function showToast(message) {
   toast.className = "show";
   setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
 }
+
