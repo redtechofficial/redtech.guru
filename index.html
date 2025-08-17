@@ -1,53 +1,57 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Notes Store</title>
-  <link rel="stylesheet" href="assets/css/style.css" />
-  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="icon" href="assets/images/favicon.ico">
 </head>
 <body>
-  <!-- HEADER -->
-  <header>
-    <h1>📘 Notes Store</h1>
-    <div class="header-right">
-      <label class="switch">
+  <!-- Header -->
+  <header class="header">
+    <h1 class="logo">📚 Notes Store</h1>
+    <nav>
+      <a href="contact.html">Contact</a>
+      <a href="terms.html">Terms</a>
+      <a href="privacy.html">Privacy</a>
+      <a href="refund.html">Refunds</a>
+      <a href="shipping.html">Shipping</a>
+    </nav>
+    <div class="controls">
+      <!-- Dark/Light Mode Toggle -->
+      <label class="theme-switch">
         <input type="checkbox" id="themeToggle">
-        <span class="slider round"></span>
+        <span class="slider"></span>
       </label>
-      <small id="themeLabel">Dark Mode</small>
-      <div class="cart" onclick="showCart()">
-        🛒 <span id="cartCount">0</span>
-      </div>
+      <p id="themeStatus">Dark Mode</p>
+      <!-- Cart -->
+      <a href="checkout.html" id="cartIcon">🛒</a>
     </div>
   </header>
 
-  <!-- MAIN -->
+  <!-- Hero -->
+  <section class="hero">
+    <h2>High-Quality Study Notes</h2>
+    <p>Buy and download instantly. Secure payment via Razorpay.</p>
+  </section>
+
+  <!-- Product Grid -->
   <main>
-    <h2>Available Notes</h2>
-    <div class="product-grid" id="productGrid"></div>
+    <h2 class="section-title">Available Notes</h2>
+    <div id="productGrid" class="product-grid"></div>
   </main>
 
-  <!-- FOOTER -->
+  <!-- Footer -->
   <footer>
-    <p>&copy; 2025 Notes Store</p>
+    <p>© 2017-2025 Notes Store. All rights reserved.</p>
+    <nav>
+      <a href="terms.html">Terms of Use</a> · 
+      <a href="privacy.html">Privacy Policy</a>
+    </nav>
   </footer>
 
-  <!-- CART MODAL -->
-  <div id="cartModal" class="cart-modal">
-    <div class="cart-content">
-      <span class="close" onclick="closeCart()">&times;</span>
-      <h2>Your Cart</h2>
-      <div id="cartItems"></div>
-      <button onclick="checkout()">Checkout</button>
-    </div>
-  </div>
-
-  <!-- TOAST -->
-  <div id="toast"></div>
-
+  <!-- Scripts -->
   <script src="assets/js/script.js"></script>
 </body>
 </html>
-
