@@ -13,10 +13,7 @@ if (savedTheme) {
   setTheme(systemDark ? 'dark' : 'light');
 }
 
-// --- PRODUCTS (via Razorpay Links) ---
-let products = [];
-
-// Loader + Grid references
+// --- PRODUCTS ---
 const grid = document.getElementById("productGrid");
 const loader = document.getElementById("loader");
 
@@ -26,14 +23,18 @@ fetch("../data/links.json")
   .then(async links => {
     console.log("Fetched links:", links);
 
-    // Scrape each link
-    const scraped = await Promise.all(links.map(link => scrapeRazorpay(link)));
+    // Render incrementally
+    for (const link of links) {
+      scrapeRazorpay(link).then(product => {
+        if (product) {
+          renderProduct(product);
+        }
+      });
+    }
 
-    // Filter out failures
-    products = scraped.filter(p => p !== null);
-
-    console.log("Scraped products:", products);
-    renderProducts(products);
+    // Hide loader after starting fetch
+    loader.style.display = "none";
+    grid.style.display = "grid";
   })
   .catch(err => {
     console.error("Error loading links.json:", err);
@@ -67,24 +68,24 @@ async function scrapeRazorpay(url) {
     // --- Improved price fetch ---
     let price = null;
 
-    // 1) Check inputs with ₹
+    // 1) Input fields with ₹
     const priceInput = Array.from(doc.querySelectorAll("input")).find(el => el.value.includes("₹"));
     if (priceInput) {
-      price = priceInput.value.replace(/[^\d]/g, "");
+      price = priceInput.value.replace(/[^\d.]/g, "");
     }
 
-    // 2) If not found, scan body text for ₹ + numbers
+    // 2) If not found, scan text
     if (!price) {
       const match = doc.body.innerText.match(/₹\s?(\d+(\.\d{1,2})?)/);
       if (match) price = match[1];
     }
 
     return {
-      id: url, // use link as ID
+      id: url,
       link: url,
-      title: title.trim(),
+      title: title.trim().replace(/^Pay for\s*/i, ""),
       description: description.trim(),
-      price: price ? parseFloat(price) : null,
+      price: price ? parseFloat(price).toFixed(2) : null,
       cover: image
     };
   } catch (err) {
@@ -93,47 +94,25 @@ async function scrapeRazorpay(url) {
   }
 }
 
-function renderProducts(products) {
-  // ✅ hide loader, show grid
-  loader.style.display = "none";
-  grid.style.display = "grid";
+// --- Render a single product ---
+function renderProduct(p) {
+  const card = document.createElement("div");
+  card.className = "product-card";
 
-  if (!products.length) {
-    grid.innerHTML = "<p>⚠️ No products could be loaded.</p>";
-    return;
-  }
+  card.innerHTML = `
+    ${p.cover ? `<img src="${p.cover}" alt="${p.title}">` : ""}
+    <h3>${p.title}</h3>
+    <p class="desc">${p.description}</p>
+    ${p.price ? `<p class="price">₹${p.price}</p>` : `<p class="price">Price not available</p>`}
+    <a href="${p.link}" target="_blank">
+      <button>Buy Now</button>
+    </a>
+  `;
 
-  grid.innerHTML = products.map(p => {
-    // strip "Pay for" from title
-    const cleanTitle = p.title.replace(/^Pay for\s*/i, "");
-
-    // full description (no truncation)
-    const fullDesc = p.description;
-
-    return `
-      <div class="product-card">
-        ${p.cover ? `<img src="${p.cover}" alt="${cleanTitle}">` : ""}
-        <h3>${cleanTitle}</h3>
-        <p class="desc">${fullDesc}</p>
-        ${p.price ? `<p class="price">₹${p.price}</p>` : ""}
-        <a href="${p.link}" target="_blank">
-          <button>Buy Now</button>
-        </a>
-      </div>
-    `;
-  }).join('');
+  grid.appendChild(card);
 }
 
 // --- Error message ---
 function showError(msg) {
   loader.innerHTML = `<p style="color:red;">${msg}</p>`;
 }
-
-// --- TOAST ---
-function showToast(message) {
-  const toast = document.getElementById("toast");
-  toast.textContent = message;
-  toast.className = "show";
-  setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
-}
-
