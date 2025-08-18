@@ -1,3 +1,4 @@
+
 // --- THEME (auto-detect + remember) ---
 function setTheme(theme) {
   document.documentElement.setAttribute('data-theme', theme);
@@ -62,14 +63,28 @@ async function scrapeRazorpay(url) {
                         || "";
     const image = doc.querySelector('meta[property="og:image"]')?.content 
                   || "";
-    const priceMatch = description.match(/₹\s?(\d+)/);
+
+    // --- Improved price fetch ---
+    let price = null;
+
+    // 1) Check inputs with ₹
+    const priceInput = Array.from(doc.querySelectorAll("input")).find(el => el.value.includes("₹"));
+    if (priceInput) {
+      price = priceInput.value.replace(/[^\d]/g, "");
+    }
+
+    // 2) If not found, scan body text for ₹ + numbers
+    if (!price) {
+      const match = doc.body.innerText.match(/₹\s?(\d+(\.\d{1,2})?)/);
+      if (match) price = match[1];
+    }
 
     return {
       id: url, // use link as ID
       link: url,
       title: title.trim(),
       description: description.trim(),
-      price: priceMatch ? parseInt(priceMatch[1]) : null,
+      price: price ? parseFloat(price) : null,
       cover: image
     };
   } catch (err) {
@@ -121,3 +136,4 @@ function showToast(message) {
   toast.className = "show";
   setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
 }
+
