@@ -1,12 +1,7 @@
-// --- THEME TOGGLE ---
-const themeToggle = document.getElementById('themeToggle');
-const themeLabel = document.getElementById('themeLabel');
-
+// --- THEME (auto-detect + remember) ---
 function setTheme(theme) {
   document.documentElement.setAttribute('data-theme', theme);
   localStorage.setItem('theme', theme);
-  themeToggle.checked = (theme === 'dark');
-  themeLabel.textContent = theme === 'dark' ? "Light Mode" : "Dark Mode";
 }
 
 const savedTheme = localStorage.getItem('theme');
@@ -16,123 +11,107 @@ if (savedTheme) {
   const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
   setTheme(systemDark ? 'dark' : 'light');
 }
-themeToggle.addEventListener('change', () => {
-  const newTheme = themeToggle.checked ? 'dark' : 'light';
-  setTheme(newTheme);
-});
 
-// --- CART + PRODUCTS ---
-let cart = [];
+// --- PRODUCTS (via Razorpay Links) ---
 let products = [];
 
-fetch('../data/products.json')
+// Loader + Grid references
+const grid = document.getElementById("productGrid");
+const loader = document.getElementById("loader");
+
+// Load links.json
+fetch("../data/links.json")
   .then(res => res.json())
-  .then(data => {
-    products = data;
+  .then(async links => {
+    console.log("Fetched links:", links);
+
+    // Scrape each link
+    const scraped = await Promise.all(links.map(link => scrapeRazorpay(link)));
+
+    // Filter out failures
+    products = scraped.filter(p => p !== null);
+
+    console.log("Scraped products:", products);
     renderProducts(products);
+  })
+  .catch(err => {
+    console.error("Error loading links.json:", err);
+    showError("❌ Failed to load products.");
   });
 
+async function scrapeRazorpay(url) {
+  try {
+    const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+    console.log("Fetching:", proxyUrl);
+
+    const res = await fetch(proxyUrl);
+    const data = await res.json();
+
+    if (!data || !data.contents) {
+      console.warn("Empty response for", url);
+      return null;
+    }
+
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(data.contents, "text/html");
+
+    const title = doc.querySelector('meta[property="og:title"]')?.content 
+                  || doc.title 
+                  || "Untitled";
+    const description = doc.querySelector('meta[property="og:description"]')?.content 
+                        || "";
+    const image = doc.querySelector('meta[property="og:image"]')?.content 
+                  || "";
+    const priceMatch = description.match(/₹\s?(\d+)/);
+
+    return {
+      id: url, // use link as ID
+      link: url,
+      title: title.trim(),
+      description: description.trim(),
+      price: priceMatch ? parseInt(priceMatch[1]) : null,
+      cover: image
+    };
+  } catch (err) {
+    console.error("Scrape error:", url, err);
+    return null;
+  }
+}
+
 function renderProducts(products) {
-  const grid = document.getElementById('productGrid');
-  grid.innerHTML = products.map(p => `
-    <div class="product-card">
-      <img src="${p.cover}" alt="${p.title}">
-      <h3>${p.title}</h3>
-      <p>${p.author}</p>
-      <p class="price">₹${p.price}</p>
-      <button onclick="addToCart('${p.id}')">Add to Cart</button>
-      <button onclick="buyNow('${p.id}')">Buy Now</button>
-    </div>
-  `).join('');
-}
+  // ✅ hide loader, show grid
+  loader.style.display = "none";
+  grid.style.display = "grid";
 
-// Add to Cart
-function addToCart(id) {
-  const product = products.find(p => p.id === id);
-  if (product) {
-    cart.push(product);
-    updateCartCount();
-    showToast(`${product.title} added to cart!`);
-  }
-}
-
-function updateCartCount() {
-  document.getElementById("cartCount").textContent = cart.length;
-}
-
-function showCart() {
-  const cartModal = document.getElementById("cartModal");
-  const cartItems = document.getElementById("cartItems");
-  if (cart.length === 0) {
-    cartItems.innerHTML = "<p>Your cart is empty.</p>";
-  } else {
-    cartItems.innerHTML = cart.map(item => `<p>${item.title} — ₹${item.price}</p>`).join("");
-  }
-  cartModal.style.display = "block";
-}
-
-function closeCart() {
-  document.getElementById("cartModal").style.display = "none";
-}
-
-// --- PAYMENT (Razorpay) ---
-// Replace with your Razorpay TEST Key ID
-const RAZORPAY_KEY = "rzp_test_xxxxxxxxxx";
-
-// Direct "Buy Now"
-function buyNow(id) {
-  const product = products.find(p => p.id === id);
-  if (!product) return;
-
-  var options = {
-    "key": RAZORPAY_KEY,
-    "amount": product.price * 100,
-    "currency": "INR",
-    "name": "Notes Store",
-    "description": product.title,
-    "handler": function (response) {
-      alert("Payment successful for " + product.title + " ✅\nPayment ID: " + response.razorpay_payment_id);
-    },
-    "prefill": {
-      "name": "Student",
-      "email": "student@example.com",
-      "contact": "9999999999"
-    },
-    "theme": { "color": "#3399cc" }
-  };
-  var rzp = new Razorpay(options);
-  rzp.open();
-}
-
-// Cart Checkout
-function checkout() {
-  if (cart.length === 0) {
-    alert("Your cart is empty.");
+  if (!products.length) {
+    grid.innerHTML = "<p>⚠️ No products could be loaded.</p>";
     return;
   }
-  const total = cart.reduce((sum, item) => sum + item.price, 0);
 
-  var options = {
-    "key": RAZORPAY_KEY,
-    "amount": total * 100,
-    "currency": "INR",
-    "name": "Notes Store",
-    "description": "Cart Checkout",
-    "handler": function (response) {
-      alert("Payment successful for " + cart.length + " items ✅\nPayment ID: " + response.razorpay_payment_id);
-      cart = [];
-      updateCartCount();
-      closeCart();
-    },
-    "prefill": {
-      "name": "Student",
-      "email": "student@example.com",
-      "contact": "9999999999"
-    },
-    "theme": { "color": "#3399cc" }
-  };
-  var rzp = new Razorpay(options);
-  rzp.open();
+  grid.innerHTML = products.map(p => {
+    // strip "Pay for" from title
+    const cleanTitle = p.title.replace(/^Pay for\s*/i, "");
+
+    // full description (no truncation)
+    const fullDesc = p.description;
+
+    return `
+      <div class="product-card">
+        ${p.cover ? `<img src="${p.cover}" alt="${cleanTitle}">` : ""}
+        <h3>${cleanTitle}</h3>
+        <p class="desc">${fullDesc}</p>
+        ${p.price ? `<p class="price">₹${p.price}</p>` : ""}
+        <a href="${p.link}" target="_blank">
+          <button>Buy Now</button>
+        </a>
+      </div>
+    `;
+  }).join('');
+}
+
+// --- Error message ---
+function showError(msg) {
+  loader.innerHTML = `<p style="color:red;">${msg}</p>`;
 }
 
 // --- TOAST ---
@@ -142,4 +121,3 @@ function showToast(message) {
   toast.className = "show";
   setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
 }
-
