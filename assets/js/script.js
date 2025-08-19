@@ -1,4 +1,3 @@
-
 // --- THEME (auto-detect + remember) ---
 function setTheme(theme) {
   document.documentElement.setAttribute('data-theme', theme);
@@ -17,7 +16,10 @@ if (savedTheme) {
 const grid = document.getElementById("productGrid");
 const loader = document.getElementById("loader");
 
-// Load links.json
+// 🔑 Your Apps Script endpoint
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxn4q4sBUldaHUlzR6jZKSTZjREzt4HdG38eW7T5EP28YfluKOm2HfdsHDEhObb13e4/exec";
+
+// Load links.json (list of Razorpay short links)
 fetch("../data/links.json")
   .then(res => res.json())
   .then(async links => {
@@ -25,7 +27,7 @@ fetch("../data/links.json")
 
     // Render incrementally
     for (const link of links) {
-      scrapeRazorpay(link).then(product => {
+      fetchFromBackend(link).then(product => {
         if (product) {
           renderProduct(product);
         }
@@ -41,55 +43,27 @@ fetch("../data/links.json")
     showError("❌ Failed to load products.");
   });
 
-async function scrapeRazorpay(url) {
+// --- Fetch product from Apps Script backend ---
+async function fetchFromBackend(url) {
   try {
-    const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
-    console.log("Fetching:", proxyUrl);
-
-    const res = await fetch(proxyUrl);
+    const res = await fetch(`${APPS_SCRIPT_URL}?link=${encodeURIComponent(url)}`);
     const data = await res.json();
 
-    if (!data || !data.contents) {
-      console.warn("Empty response for", url);
+    if (!data) {
+      console.warn("Empty backend response for", url);
       return null;
-    }
-
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(data.contents, "text/html");
-
-    const title = doc.querySelector('meta[property="og:title"]')?.content 
-                  || doc.title 
-                  || "Untitled";
-    const description = doc.querySelector('meta[property="og:description"]')?.content 
-                        || "";
-    const image = doc.querySelector('meta[property="og:image"]')?.content 
-                  || "";
-
-    // --- Improved price fetch ---
-    let price = null;
-
-    // 1) Input fields with ₹
-    const priceInput = Array.from(doc.querySelectorAll("input")).find(el => el.value.includes("₹"));
-    if (priceInput) {
-      price = priceInput.value.replace(/[^\d.]/g, "");
-    }
-
-    // 2) If not found, scan text
-    if (!price) {
-      const match = doc.body.innerText.match(/₹\s?(\d+(\.\d{1,2})?)/);
-      if (match) price = match[1];
     }
 
     return {
       id: url,
       link: url,
-      title: title.trim().replace(/^Pay for\s*/i, ""),
-      description: description.trim(),
-      price: price ? parseFloat(price).toFixed(2) : null,
-      cover: image
+      title: data.title?.trim().replace(/^Pay for\s*/i, "") || "Untitled",
+      description: data.description?.trim() || "",
+      price: data.amount ? (data.amount / 100).toFixed(2) : null,
+      cover: data.image || ""
     };
   } catch (err) {
-    console.error("Scrape error:", url, err);
+    console.error("Backend fetch error:", url, err);
     return null;
   }
 }
