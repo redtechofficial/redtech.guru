@@ -17,7 +17,7 @@ const grid = document.getElementById("productGrid");
 const loader = document.getElementById("loader");
 
 // 🔑 Your Apps Script endpoint
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxn4q4sBUldaHUlzR6jZKSTZjREzt4HdG38eW7T5EP28YfluKOm2HfdsHDEhObb13e4/exec";
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyxAwCwCpoeJ628wsSkfKTpcWfvkBtlWswFQl0Xvkv7iZnJdWMiymUQPyKvjnvTZY0u/exec";
 
 // Load links.json (list of Razorpay short links)
 fetch("../data/links.json")
@@ -90,3 +90,4 @@ function renderProduct(p) {
 function showError(msg) {
   loader.innerHTML = `<p style="color:red;">${msg}</p>`;
 }
+
